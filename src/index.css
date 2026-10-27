@@ -1,0 +1,59 @@
+@import '@fontsource/space-grotesk/500.css';
+@import '@fontsource/space-grotesk/600.css';
+@import '@fontsource/space-grotesk/700.css';
+@import '@fontsource/public-sans/400.css';
+@import '@fontsource/public-sans/500.css';
+@import '@fontsource/public-sans/600.css';
+@import 'tailwindcss';
+
+/* Palette — unica fonte, da prompt-claude-design.md (redesign 2026-08-26).
+   Non duplicare questi valori altrove. Toni "vivi" scelti dall'utente per il
+   redesign: stessa famiglia cromatica di prima ma chroma/lightness alzati. */
+@theme {
+  --font-sans: 'Public Sans', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', 'Public Sans', system-ui, sans-serif;
+
+  --color-background: #F6F7FB;
+  --color-surface: #FFFFFF;
+  --color-border: oklch(89% 0.009 260);
+  --color-border-soft: oklch(93% 0.007 260);
+
+  --color-primary: oklch(50% 0.20 275);
+  --color-primary-hover: oklch(43% 0.20 275);
+  --color-primary-active: oklch(93% 0.05 275);
+
+  --color-positive: oklch(58% 0.16 155);
+  --color-positive-soft: oklch(93% 0.055 155);
+  --color-negative: oklch(58% 0.19 25);
+  --color-negative-soft: oklch(94% 0.05 25);
+  --color-warning: oklch(74% 0.16 70);
+  --color-warning-soft: oklch(94% 0.06 70);
+  --color-info: oklch(58% 0.16 230);
+  --color-info-soft: oklch(93% 0.045 230);
+
+  /* testo: principale, secondario, terziario */
+  --color-text: oklch(19% 0.02 260);
+  --color-text-secondary: oklch(45% 0.02 260);
+  --color-text-tertiary: oklch(65% 0.014 260);
+
+  /* palette grafici, sette colori distinti */
+  --color-chart-1: oklch(50% 0.20 275);
+  --color-chart-2: oklch(58% 0.15 230);
+  --color-chart-3: oklch(60% 0.14 165);
+  --color-chart-4: oklch(66% 0.15 70);
+  --color-chart-5: oklch(58% 0.16 155);
+  --color-chart-6: oklch(60% 0.15 340);
+  --color-chart-7: oklch(65% 0.014 260);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+* {
+  font-feature-settings: 'tnum' 1;
+  font-variant-numeric: tabular-nums;
+}

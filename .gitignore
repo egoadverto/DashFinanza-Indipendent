@@ -1,0 +1,27 @@
+# Dipendenze
+node_modules
+
+# Build
+dist
+dist-ssr
+*.local
+
+# Variabili d'ambiente
+.env
+.env.local
+.env.*.local
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# Log
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+
+# Netlify CLI
+.netlify
