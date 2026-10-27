@@ -10,6 +10,9 @@ export interface PosizioneMenu {
   direzione: 'sopra' | 'sotto'
   top: number
   left: number
+  // Bordo sinistro e larghezza del pulsante: per le tendine larghe quanto il campo.
+  sinistraTrigger: number
+  larghezzaTrigger: number
 }
 
 // Un menù a tendina di riga si apre di norma verso il basso; se la finestra
@@ -20,7 +23,7 @@ export interface PosizioneMenu {
 // contenitore o coperto dalla riga successiva (che ha il proprio sfondo
 // sticky sopra di lui nello stacking order).
 export function useDirezioneMenu(aperto: boolean, triggerRef: RefObject<HTMLElement | null>, numeroVoci: number, width: number): PosizioneMenu {
-  const [posizione, setPosizione] = useState<PosizioneMenu>({ direzione: 'sotto', top: 0, left: 0 })
+  const [posizione, setPosizione] = useState<PosizioneMenu>({ direzione: 'sotto', top: 0, left: 0, sinistraTrigger: 0, larghezzaTrigger: 0 })
 
   useLayoutEffect(() => {
     if (!aperto || !triggerRef.current) return
@@ -35,6 +38,8 @@ export function useDirezioneMenu(aperto: boolean, triggerRef: RefObject<HTMLElem
         direzione,
         top: direzione === 'sotto' ? rect.bottom + MARGINE : rect.top - MARGINE - altezzaMenu,
         left: rect.right - width,
+        sinistraTrigger: rect.left,
+        larghezzaTrigger: rect.width,
       })
     }
 

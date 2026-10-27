@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useClickEsterno } from '../hooks/useClickEsterno'
+import { useDirezioneMenu } from '../hooks/useDirezioneMenu'
 
 export default function Dropdown<T extends string>({
   options,
@@ -14,7 +16,11 @@ export default function Dropdown<T extends string>({
 }) {
   const [open, setOpen] = useState(false)
   const selezionato = options.find((o) => o.value === value)
-  const ref = useClickEsterno<HTMLDivElement>(open, () => setOpen(false))
+  const portaleRef = useRef<HTMLDivElement>(null)
+  const ref = useClickEsterno<HTMLDivElement>(open, () => setOpen(false), portaleRef)
+  // In portale: dentro un modale con scroll proprio la lista restava tagliata,
+  // e dentro un <label> ogni click su una voce riapriva la tendina.
+  const pos = useDirezioneMenu(open, ref, Math.min(options.length, 6.5), 0)
 
   return (
     <div className="relative" ref={ref}>
@@ -28,8 +34,12 @@ export default function Dropdown<T extends string>({
           <path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
-      {open && (
-        <div className="absolute top-[calc(100%+4px)] z-20 max-h-60 w-full overflow-auto rounded-lg border border-border bg-surface p-1 shadow-lg">
+      {open && createPortal(
+        <div
+          ref={portaleRef}
+          className="fixed z-[60] max-h-60 overflow-auto rounded-lg border border-border bg-surface p-1 shadow-lg"
+          style={{ top: pos.top, left: pos.sinistraTrigger, width: pos.larghezzaTrigger }}
+        >
           {options.map((o) => (
             <div
               key={o.value}
@@ -42,7 +52,8 @@ export default function Dropdown<T extends string>({
               {o.label}
             </div>
           ))}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   )

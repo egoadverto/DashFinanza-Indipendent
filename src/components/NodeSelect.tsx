@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useClickEsterno } from '../hooks/useClickEsterno'
+import { useDirezioneMenu } from '../hooks/useDirezioneMenu'
 import type { ContenitoreOpzione } from '../lib/tree'
 
 function profondita(id: string, byId: Map<string, ContenitoreOpzione>): number {
@@ -33,7 +35,11 @@ export default function NodeSelect({
   const byId = new Map(opzioni.map((p) => [p.id, p]))
   const selezionato = value ? byId.get(value) : null
   const label = selezionato ? selezionato.nome : permettiNessuno ? placeholder : 'Seleziona…'
-  const ref = useClickEsterno<HTMLDivElement>(open, () => setOpen(false))
+  const portaleRef = useRef<HTMLDivElement>(null)
+  const ref = useClickEsterno<HTMLDivElement>(open, () => setOpen(false), portaleRef)
+  // In portale, come Dropdown: niente lista tagliata dal modale né riaperta dal <label>.
+  const larghezzaMinimal = 260
+  const pos = useDirezioneMenu(open, ref, Math.min(opzioni.length + (permettiNessuno ? 1 : 0), 6.5), larghezzaMinimal)
 
   return (
     <div className="relative" ref={ref}>
@@ -65,11 +71,15 @@ export default function NodeSelect({
           </svg>
         </button>
       )}
-      {open && (
+      {open && createPortal(
         <div
-          className={`absolute top-[calc(100%+4px)] z-10 max-h-60 overflow-y-auto overflow-x-hidden rounded-lg border border-border bg-surface p-1 shadow-lg ${
-            variant === 'minimal' ? 'right-0 w-max min-w-[220px] max-w-[320px]' : 'w-full'
-          }`}
+          ref={portaleRef}
+          className="fixed z-[60] max-h-60 overflow-y-auto overflow-x-hidden rounded-lg border border-border bg-surface p-1 shadow-lg"
+          style={
+            variant === 'minimal'
+              ? { top: pos.top, left: pos.left, width: larghezzaMinimal }
+              : { top: pos.top, left: pos.sinistraTrigger, width: pos.larghezzaTrigger }
+          }
         >
           {permettiNessuno && (
             <div
@@ -96,7 +106,8 @@ export default function NodeSelect({
               {o.tipo === 'tag' && <span className="ml-1.5 text-[11px] text-text-tertiary">TAG</span>}
             </div>
           ))}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   )
