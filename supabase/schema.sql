@@ -1,9 +1,11 @@
 -- =====================================================================
 -- DashFinanza — Schema della base dati
 -- Da eseguire nell'SQL Editor di Supabase, su un progetto nuovo e vuoto.
--- Riflette lo stato reale del database in produzione al 2026-09-21
--- (rigenerato dalle migrazioni applicate — vedi SETUP.md per la procedura
--- completa di installazione, comprese Edge Function, cron e utente).
+-- Riflette lo stato del database in produzione al 2026-09-21 (rigenerato
+-- dalle migrazioni applicate), più il trigger t_impedisci_ciclo aggiunto il
+-- 2026-10-27, che su un database già esistente va applicato a parte.
+-- Procedura completa di installazione (Edge Function, cron, utente):
+-- installazione-indipendente.md.
 -- =====================================================================
 --
 -- PRINCIPI
@@ -334,16 +336,35 @@ from prezzi
 order by titolo_id, data desc;
 
 
--- Risultato realizzato sulle vendite, con le commissioni sottratte
--- dal ricavo e il costo medio del momento come base.
+-- Risultato realizzato sulle vendite, con le commissioni sottratte dal
+-- ricavo e, come base, il costo medio ponderato calcolato in ordine
+-- cronologico (una vendita non lo cambia, un acquisto successivo sì).
+-- A parità di data gli acquisti vengono prima delle vendite. Una vendita
+-- il cui costo medio non è noto (apertura senza importo) non entra.
 create or replace view v_realizzato as
-select
-  t.nodo_id,
-  sum((t.importo - t.commissioni) - (t.quantita * p.costo_medio)) as realizzato
-from transazioni t
-join v_posizioni p on p.nodo_id = t.nodo_id
-where t.tipo = 'vendita' and p.costo_medio is not null
-group by t.nodo_id;
+with recursive ord as (
+  select nodo_id, tipo, quantita, importo, commissioni,
+         row_number() over (partition by nodo_id order by data, (tipo = 'vendita'), id) as rn
+  from transazioni
+), r as (
+  select nodo_id, rn, tipo, importo, commissioni, quantita,
+         case when tipo = 'vendita' then -quantita else quantita end as qta,
+         case when tipo = 'vendita' then null else (importo + commissioni) / quantita end as costo_medio,
+         null::numeric as base
+  from ord where rn = 1
+  union all
+  select o.nodo_id, o.rn, o.tipo, o.importo, o.commissioni, o.quantita,
+         r.qta + case when o.tipo = 'vendita' then -o.quantita else o.quantita end,
+         case when o.tipo = 'vendita' then r.costo_medio
+              when r.qta <= 0 then (o.importo + o.commissioni) / o.quantita
+              else (r.qta * r.costo_medio + o.importo + o.commissioni) / (r.qta + o.quantita) end,
+         case when o.tipo = 'vendita' then r.costo_medio end
+  from r join ord o on o.nodo_id = r.nodo_id and o.rn = r.rn + 1
+)
+select nodo_id, sum((importo - commissioni) - quantita * base) as realizzato
+from r
+where tipo = 'vendita' and base is not null
+group by nodo_id;
 
 
 -- Valore di ogni nodo: per i titoli quantità per ultimo prezzo,
@@ -474,6 +495,49 @@ create trigger t_upd before update on impostazioni
 
 
 -- =====================================================================
+-- NESSUN CICLO NELL'ALBERO
+-- =====================================================================
+-- Un nodo non può avere come padre sé stesso né uno dei propri discendenti:
+-- chiuderebbe un ciclo, e la vista ricorsiva v_discendenza non terminerebbe
+-- più (Dashboard e Posizioni smetterebbero di funzionare). L'interfaccia non
+-- offre queste scelte; questo trigger le rifiuta anche se arrivano da altrove.
+-- Si risale dagli antenati del nuovo padre: se si incontra il nodo stesso,
+-- il ciclo c'è. UNION (non UNION ALL) perché la risalita termini comunque,
+-- anche se per qualche motivo un ciclo esistesse già.
+create or replace function public.impedisci_ciclo_nodi()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if new.parent_id is null then
+    return new;
+  end if;
+
+  if new.parent_id = new.id then
+    raise exception 'Un nodo non può essere il padre di sé stesso';
+  end if;
+
+  if exists (
+    with recursive antenati as (
+      select n.id, n.parent_id from public.nodi n where n.id = new.parent_id
+      union
+      select n.id, n.parent_id from public.nodi n join antenati a on n.id = a.parent_id
+    )
+    select 1 from antenati where id = new.id
+  ) then
+    raise exception 'Spostamento non valido: il nuovo padre è un discendente di questo nodo';
+  end if;
+
+  return new;
+end;
+$$;
+
+create trigger t_impedisci_ciclo before update of parent_id on nodi
+  for each row execute function impedisci_ciclo_nodi();
+
+
+-- =====================================================================
 -- CHIUSURA AUTOMATICA DELLE POSIZIONI VENDUTE INTERAMENTE
 -- =====================================================================
 -- Quando le transazioni di un titolo azzerano la quantità netta, il nodo
@@ -515,7 +579,8 @@ begin
 
     select stato into stato_corrente from nodi where id = nid;
 
-    if qta <= 0 and stato_corrente in ('attiva', 'congelata') then
+    if qta <= 0 and stato_corrente in ('attiva', 'congelata')
+       and exists (select 1 from transazioni where nodo_id = nid) then
       update nodi set stato = 'chiusa' where id = nid;
     elsif qta > 0 and stato_corrente = 'chiusa' then
       update nodi set stato = 'attiva' where id = nid;
@@ -532,3 +597,29 @@ after insert or update or delete on transazioni
 for each row execute function aggiorna_stato_posizione();
 
 revoke all on function public.aggiorna_stato_posizione() from public, anon, authenticated;
+
+
+-- Segreto condiviso tra il cron giornaliero e aggiorna-prezzi: vive nel
+-- Vault, il cron lo legge da lì e la funzione lo verifica con questa RPC
+-- (solo service_role). Il token anonimo, pubblico nell'app, non basta.
+select vault.create_secret(
+  replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', ''),
+  'cron_prezzi',
+  'Segreto con cui il cron giornaliero si autentica verso aggiorna-prezzi'
+)
+where not exists (select 1 from vault.secrets where name = 'cron_prezzi');
+
+create or replace function public.cron_segreto_valido(segreto text)
+returns boolean
+language sql
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1 from vault.decrypted_secrets
+    where name = 'cron_prezzi' and decrypted_secret = segreto
+  );
+$$;
+
+revoke all on function public.cron_segreto_valido(text) from public, anon, authenticated;
+grant execute on function public.cron_segreto_valido(text) to service_role;

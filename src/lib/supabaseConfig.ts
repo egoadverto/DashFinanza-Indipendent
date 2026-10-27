@@ -33,6 +33,12 @@ export function configurazioneAttiva(): SupabaseConfig {
   )
 }
 
+// L'indirizzo di una Edge Function sul progetto realmente in uso (override
+// incluso), non sempre quello di build.
+export function urlEdgeFunction(nome: string): string {
+  return `${configurazioneAttiva().url}/functions/v1/${nome}`
+}
+
 export function impostaOverride(config: SupabaseConfig) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
 }

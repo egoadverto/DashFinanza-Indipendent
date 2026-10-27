@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../lib/supabase'
+import { supabase, getUserId } from '../lib/supabase'
+import { trovaProviderId } from '../lib/providerTitolo'
 import { TREE_QUERY_KEY } from './useTree'
 import type { CategoriaTitolo } from '../types/domain'
 
@@ -17,9 +18,11 @@ export function useUpdateTitolo() {
 
   return useMutation({
     mutationFn: async ({ id, nome, isin, categoria, simboloProvider, ter }: AggiornaTitoloInput) => {
+      const userId = await getUserId()
+      const providerId = await trovaProviderId(userId, categoria, isin)
       const { error } = await supabase
         .from('titoli')
-        .update({ nome, isin, categoria, simbolo_provider: simboloProvider, ter })
+        .update({ nome, isin, categoria, simbolo_provider: simboloProvider, provider_id: providerId, ter })
         .eq('id', id)
       if (error) throw new Error(error.message)
     },

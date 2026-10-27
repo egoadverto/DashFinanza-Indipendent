@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
+import { urlEdgeFunction } from '../lib/supabaseConfig'
 import { PROVIDER_PREZZI_QUERY_KEY } from './useProviderPrezzi'
 import { TREE_QUERY_KEY } from './useTree'
 import { DASHBOARD_QUERY_KEY } from './useDashboardData'
@@ -13,7 +14,7 @@ export function useAggiornaPrezzi() {
       if (sessionError) throw new Error(sessionError.message)
       if (!sessionData.session) throw new Error('Sessione scaduta, ricarica la pagina.')
 
-      const risposta = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${funzione}`, {
+      const risposta = await fetch(urlEdgeFunction(funzione), {
         method: 'POST',
         headers: { Authorization: `Bearer ${sessionData.session.access_token}` },
       })

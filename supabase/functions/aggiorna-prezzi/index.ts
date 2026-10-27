@@ -32,7 +32,7 @@ interface RispostaJustEtf {
 }
 
 async function fetchGiustEtf(isin: string): Promise<RispostaJustEtf> {
-  const url = new URL(`https://www.justetf.com/api/etfs/${isin}/performance-chart`)
+  const url = new URL(`https://www.justetf.com/api/etfs/${encodeURIComponent(isin)}/performance-chart`)
   url.search = new URLSearchParams({
     locale: 'en',
     valuesType: 'MARKET_VALUE',
@@ -56,10 +56,31 @@ function puntiMensili(series: SerieVoce[]): SerieVoce[] {
   return [...perMese.values()]
 }
 
+type Client = ReturnType<typeof createClient>
+
+// Il cron si presenta con il segreto del Vault (header x-cron-secret); il
+// browser con il JWT dell'utente. Il token anonimo, pubblico nell'app, non basta.
+async function autorizzato(req: Request, supabase: Client): Promise<boolean> {
+  const segreto = req.headers.get('x-cron-secret')
+  if (segreto) {
+    const { data } = await supabase.rpc('cron_segreto_valido', { segreto })
+    return data === true
+  }
+  // La firma del JWT è già verificata dal gateway (verify_jwt): qui basta il ruolo.
+  try {
+    const token = req.headers.get('Authorization')?.replace('Bearer ', '') ?? ''
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
+    return payload.role === 'authenticated'
+  } catch {
+    return false
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS_HEADERS })
 
   const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
+  if (!(await autorizzato(req, supabase))) return new Response('Non autorizzato', { status: 401, headers: CORS_HEADERS })
 
   const { data: titoliGrezzi, error: erroreTitoli } = await supabase
     .from('titoli')
@@ -70,8 +91,6 @@ Deno.serve(async (req) => {
   // Un titolo senza provider collegato viene comunque aggiornato (compatibilità);
   // uno con provider disattivato viene saltato.
   const titoli = (titoliGrezzi ?? []).filter((t) => t.provider_prezzi === null || t.provider_prezzi?.attivo !== false)
-
-  const { data: provider } = await supabase.from('provider_prezzi').select('id').eq('codice', 'justetf').maybeSingle()
 
   const risultati: { isin: string; ok: boolean; errore?: string }[] = []
 
@@ -103,7 +122,8 @@ Deno.serve(async (req) => {
     await new Promise((r) => setTimeout(r, 300))
   }
 
-  if (provider) {
+  // Con zero titoli da aggiornare non c'è nulla da segnalare: lasciare ultimo_ok com'è.
+  if (risultati.length > 0) {
     const errori = risultati.filter((r) => !r.ok).map((r) => `${r.isin}: ${r.errore}`)
     await supabase
       .from('provider_prezzi')
@@ -111,7 +131,7 @@ Deno.serve(async (req) => {
         ...(errori.length === 0 ? { ultimo_ok: new Date().toISOString() } : {}),
         ultimo_errore: errori.length ? errori.join('; ') : null,
       })
-      .eq('id', provider.id)
+      .eq('codice', 'justetf')
   }
 
   return new Response(JSON.stringify({ risultati }), { headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } })

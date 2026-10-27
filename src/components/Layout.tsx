@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { usePrivacy } from '../lib/privacy'
+import { Logo } from './Logo'
 import { IconGrid, IconTree, IconSwap, IconChart, IconSliders, IconEye } from './icons'
 
 const NAV_ITEMS = [
@@ -26,8 +27,11 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="hidden w-[240px] flex-none flex-col border-r border-border bg-surface md:flex">
-        <div className="px-6 py-[22px] text-lg font-semibold tracking-tight">DashFinanza</div>
+      <aside className="sticky top-0 hidden h-screen w-[240px] flex-none flex-col self-start overflow-y-auto border-r border-border bg-surface md:flex">
+        <div className="flex items-center gap-2.5 px-6 py-[22px] text-lg font-semibold tracking-tight">
+          <Logo size={28} />
+          DashFinanza
+        </div>
         <nav className="flex flex-1 flex-col gap-0.5 px-3 py-2">
           {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
             <NavLink
@@ -57,7 +61,10 @@ export default function Layout() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-14 flex-none items-center gap-4 border-b border-border bg-surface px-4 md:px-6">
-          <div className="text-base font-semibold tracking-tight md:hidden">DashFinanza</div>
+          <div className="flex items-center gap-2 text-base font-semibold tracking-tight md:hidden">
+            <Logo size={24} />
+            DashFinanza
+          </div>
           <div className="flex-1" />
           <button
             onClick={toggle}

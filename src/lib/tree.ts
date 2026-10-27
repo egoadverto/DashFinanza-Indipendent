@@ -285,6 +285,23 @@ export function flattenContenitori(roots: TreeNode[]): ContenitoreOpzione[] {
   return risultato
 }
 
+// Il nodo stesso e tutti i suoi discendenti: nessuno dei due può diventare il
+// suo nuovo genitore, perché chiuderebbe un ciclo nell'albero.
+export function idConDiscendenti(contenitori: ContenitoreOpzione[], id: string): Set<string> {
+  const risultato = new Set([id])
+  let aggiunto = true
+  while (aggiunto) {
+    aggiunto = false
+    for (const c of contenitori) {
+      if (c.parentId && risultato.has(c.parentId) && !risultato.has(c.id)) {
+        risultato.add(c.id)
+        aggiunto = true
+      }
+    }
+  }
+  return risultato
+}
+
 // Un nodo e tutti i suoi discendenti: serve a evitare di poterlo spostare
 // dentro se stesso quando si sceglie il nuovo nodo padre in modifica.
 export function sottoAlberoIds(nodo: TreeNode): Set<string> {

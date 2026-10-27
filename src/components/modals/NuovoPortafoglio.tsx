@@ -6,6 +6,7 @@ import ConfirmDialog from '../ConfirmDialog'
 import { useCreateNodo } from '../../hooks/useCreateNodo'
 import { useUpdateNodo } from '../../hooks/useUpdateNodo'
 import { useDeleteNodo } from '../../hooks/useDeleteNodo'
+import { idConDiscendenti } from '../../lib/tree'
 import type { ContenitoreOpzione, TreeNode } from '../../lib/tree'
 import { parseNumeroIt } from '../../lib/format'
 
@@ -32,7 +33,8 @@ export default function NuovoPortafoglio({
   const aggiornaNodo = useUpdateNodo()
   const eliminaNodo = useDeleteNodo()
 
-  const portafogli = contenitori.filter((c) => c.tipo === 'portafoglio')
+  const esclusi = nodoEsistente ? idConDiscendenti(contenitori, nodoEsistente.id) : new Set<string>()
+  const portafogli = contenitori.filter((c) => c.tipo === 'portafoglio' && !esclusi.has(c.id))
   const puoSalvare = nome.trim().length > 0 && (modoTarget === 'calcolato' || percentuale.trim().length > 0)
   const erroreMutazione = creaNodo.error ?? aggiornaNodo.error ?? eliminaNodo.error
 

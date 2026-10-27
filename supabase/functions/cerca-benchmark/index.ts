@@ -29,7 +29,7 @@ interface RispostaJustEtf {
 }
 
 async function fetchGiustEtf(isin: string): Promise<RispostaJustEtf> {
-  const url = new URL(`https://www.justetf.com/api/etfs/${isin}/performance-chart`)
+  const url = new URL(`https://www.justetf.com/api/etfs/${encodeURIComponent(isin)}/performance-chart`)
   url.search = new URLSearchParams({
     locale: 'en',
     valuesType: 'MARKET_VALUE',
@@ -59,8 +59,14 @@ Deno.serve(async (req) => {
   const authorization = req.headers.get('Authorization')
   if (!authorization) return new Response('Non autenticato', { status: 401, headers: CORS_HEADERS })
 
-  const { benchmarkId, isin } = await req.json()
+  let benchmarkId: string | undefined, isin: string | undefined
+  try {
+    ;({ benchmarkId, isin } = await req.json())
+  } catch {
+    return new Response('Corpo della richiesta non valido', { status: 400, headers: CORS_HEADERS })
+  }
   if (!benchmarkId || !isin) return new Response('benchmarkId e isin sono richiesti', { status: 400, headers: CORS_HEADERS })
+  if (!/^[A-Z]{2}[A-Z0-9]{9}[0-9]$/.test(isin)) return new Response('ISIN non valido', { status: 400, headers: CORS_HEADERS })
 
   const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, {
     global: { headers: { Authorization: authorization } },

@@ -148,13 +148,16 @@ select cron.schedule(
     url := '<URL_PROGETTO>/functions/v1/aggiorna-prezzi',
     headers := jsonb_build_object(
       'Authorization', 'Bearer <ANON_KEY>',
-      'Content-Type', 'application/json'
+      'Content-Type', 'application/json',
+      'x-cron-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'cron_prezzi')
     ),
     body := '{}'::jsonb
   );
   $$
 );
 ```
+
+Il segreto `cron_prezzi` letto dal Vault viene creato dallo schema (passo 3); senza di esso `aggiorna-prezzi` rifiuta la chiamata del cron con 401.
 
 Aggiorna i prezzi ETF ogni giorno alle 6:00 UTC, come nell'originale. I
 prezzi cripto (CoinGecko) non hanno un cron: si aggiornano solo a mano dal

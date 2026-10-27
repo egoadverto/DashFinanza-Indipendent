@@ -9,7 +9,7 @@ import { usePrivacy } from '../lib/privacy'
 import { calcolaAndamento, twr, indiceTWR, serieBase100, rendAnnuo, type PuntoAndamento } from '../lib/andamento'
 import { xirr } from '../lib/xirr'
 import { puoPartecipareAlPac, trovaNodo, flattenContenitori, type TreeNode } from '../lib/tree'
-import { fmtEur, fmtNum, fmtPct } from '../lib/format'
+import { fmtEur, fmtNum, fmtPct, fmtMese } from '../lib/format'
 import { PERIODI, type Periodo } from '../lib/periodo'
 import Segmented from '../components/Segmented'
 import NodeSelect from '../components/NodeSelect'
@@ -211,8 +211,10 @@ export default function Dashboard() {
   const contenitoriAllocazione = useMemo(() => flattenContenitori(roots), [roots])
 
   const versamentiMensili = useMemo(() => {
-    const inverso = [...punti].reverse().slice(0, 12)
-    return inverso.map((p, i) => {
+    const inverso = [...punti].reverse()
+    // Si taglia a 12 mesi solo dopo: il mese più vecchio mostrato ha bisogno del
+    // precedente per calcolare la differenza, altrimenti risulterebbe il versato totale.
+    return inverso.slice(0, 12).map((p, i) => {
       const precedente = inverso[i + 1]
       const delta = p.versato - (precedente?.versato ?? 0)
       const variazione = precedente && precedente.versato !== 0 ? (delta / precedente.versato) * 100 : null
@@ -461,6 +463,24 @@ export default function Dashboard() {
                 <ConfrontoBenchmarkChart mesi={mesiConfronto} serie={serieConfronto} />
               </div>
               <div className="mt-3 flex flex-none flex-col gap-1.5">
+                {/* Intestazione delle tre colonne, solo da sm in su: sotto sm i numeri
+                    vanno a capo su una riga a sé e non starebbero sotto le etichette. */}
+                <div className="hidden items-center gap-x-3 text-[12px] text-text-tertiary sm:flex">
+                  <span className="w-2 flex-none" />
+                  <span className="min-w-0 flex-1 truncate">
+                    Indice
+                  </span>
+                  <span className="w-16 flex-none text-right" title={`Valore oggi, con l'inizio del periodo (${mesiConfronto.length > 0 ? fmtMese(mesiConfronto[0]) : '—'}) a 100`}>
+                    Valore
+                  </span>
+                  <span className="w-20 flex-none text-right" title="Rendimento totale nel periodo mostrato">
+                    Rend. totale
+                  </span>
+                  <span className="w-20 flex-none text-right" title="Rendimento del periodo riportato su base annua">
+                    Rend. annuo
+                  </span>
+                  <span className="w-9 flex-none" />
+                </div>
                 {serieConfronto.map((s, i) => {
                   const puntiValidi = s.punti.filter((v): v is number => v != null)
                   const valoreFinale = puntiValidi.length ? puntiValidi[puntiValidi.length - 1] : null

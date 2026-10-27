@@ -21,7 +21,7 @@ interface RispostaCoinGecko {
 }
 
 async function fetchCoinGecko(id: string): Promise<RispostaCoinGecko> {
-  const url = `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=eur&days=365`
+  const url = `https://api.coingecko.com/api/v3/coins/${encodeURIComponent(id)}/market_chart?vs_currency=eur&days=365`
   const risposta = await fetch(url)
   if (!risposta.ok) throw new Error(`CoinGecko ha risposto ${risposta.status} per ${id}`)
   return risposta.json()
@@ -37,10 +37,31 @@ function puntiMensili(prices: [number, number][]): { data: string; prezzo: numbe
   return [...perMese.values()]
 }
 
+type Client = ReturnType<typeof createClient>
+
+// Il cron si presenta con il segreto del Vault (header x-cron-secret); il
+// browser con il JWT dell'utente. Il token anonimo, pubblico nell'app, non basta.
+async function autorizzato(req: Request, supabase: Client): Promise<boolean> {
+  const segreto = req.headers.get('x-cron-secret')
+  if (segreto) {
+    const { data } = await supabase.rpc('cron_segreto_valido', { segreto })
+    return data === true
+  }
+  // La firma del JWT è già verificata dal gateway (verify_jwt): qui basta il ruolo.
+  try {
+    const token = req.headers.get('Authorization')?.replace('Bearer ', '') ?? ''
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))
+    return payload.role === 'authenticated'
+  } catch {
+    return false
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: CORS_HEADERS })
 
   const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
+  if (!(await autorizzato(req, supabase))) return new Response('Non autorizzato', { status: 401, headers: CORS_HEADERS })
 
   const { data: titoliGrezzi, error: erroreTitoli } = await supabase
     .from('titoli')
@@ -50,8 +71,6 @@ Deno.serve(async (req) => {
   if (erroreTitoli) return new Response(erroreTitoli.message, { status: 500, headers: CORS_HEADERS })
 
   const titoli = (titoliGrezzi ?? []).filter((t) => t.provider_prezzi === null || t.provider_prezzi?.attivo !== false)
-
-  const { data: provider } = await supabase.from('provider_prezzi').select('id').eq('codice', 'coingecko').maybeSingle()
 
   const risultati: { id: string; ok: boolean; errore?: string }[] = []
 
@@ -77,7 +96,8 @@ Deno.serve(async (req) => {
     await new Promise((r) => setTimeout(r, 1500))
   }
 
-  if (provider) {
+  // Con zero titoli da aggiornare non c'è nulla da segnalare: lasciare ultimo_ok com'è.
+  if (risultati.length > 0) {
     const errori = risultati.filter((r) => !r.ok).map((r) => `${r.id}: ${r.errore}`)
     await supabase
       .from('provider_prezzi')
@@ -85,7 +105,7 @@ Deno.serve(async (req) => {
         ...(errori.length === 0 ? { ultimo_ok: new Date().toISOString() } : {}),
         ultimo_errore: errori.length ? errori.join('; ') : null,
       })
-      .eq('id', provider.id)
+      .eq('codice', 'coingecko')
   }
 
   return new Response(JSON.stringify({ risultati }), { headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } })

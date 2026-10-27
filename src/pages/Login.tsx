@@ -1,3 +1,4 @@
+import { Logo } from '../components/Logo'
 import { useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 
@@ -19,7 +20,10 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-[400px] rounded-[14px] border border-border bg-surface p-6 sm:p-9">
-        <div className="mb-7 text-xl font-semibold">DashFinanza</div>
+        <div className="mb-7 flex items-center gap-3 text-xl font-semibold">
+          <Logo size={36} />
+          DashFinanza
+        </div>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <label className="block">
             <div className="mb-1.5 text-xs text-text-secondary">Email</div>

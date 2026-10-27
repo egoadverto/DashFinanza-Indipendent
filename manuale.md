@@ -90,9 +90,9 @@ avviso se il capitale supera la soglia di revisione), **"Confronto
 benchmark"** (se ne hai aggiunto almeno uno) e la tabella **"Versamenti
 mensili"**.
 
-L'interruttore privacy in alto nella barra laterale maschera tutti i
-valori in euro, per guardare la schermata senza mostrare cifre a chi è
-vicino.
+L'icona a forma di occhio nella barra in alto (a destra, accanto alle tue
+iniziali) maschera tutti i valori in euro, per guardare la schermata
+senza mostrare cifre a chi è vicino.
 
 ---
 

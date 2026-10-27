@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, getUserId } from '../lib/supabase'
+import { trovaProviderId } from '../lib/providerTitolo'
 import { TREE_QUERY_KEY } from './useTree'
 import type { CategoriaTitolo, StatoNodo, TargetUnita } from '../types/domain'
 
@@ -53,6 +54,7 @@ export function useCreateTitolo() {
             isin: input.isin,
             categoria: input.categoria,
             simbolo_provider: input.simboloProvider,
+            provider_id: await trovaProviderId(userId, input.categoria, input.isin),
             ter: input.ter,
             valuta: 'EUR',
           })

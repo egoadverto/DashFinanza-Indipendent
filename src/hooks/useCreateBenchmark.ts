@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, getUserId } from '../lib/supabase'
+import { urlEdgeFunction } from '../lib/supabaseConfig'
 import { BENCHMARK_QUERY_KEY } from './useBenchmark'
 
 export function useCreateBenchmark() {
@@ -21,7 +22,7 @@ export function useCreateBenchmark() {
 
       try {
         const { data: sessionData } = await supabase.auth.getSession()
-        const risposta = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cerca-benchmark`, {
+        const risposta = await fetch(urlEdgeFunction('cerca-benchmark'), {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${sessionData.session?.access_token}`,
