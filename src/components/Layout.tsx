@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { usePrivacy } from '../lib/privacy'
 import { Logo } from './Logo'
-import { IconGrid, IconTree, IconSwap, IconChart, IconSliders, IconEye } from './icons'
+import { IconGrid, IconTree, IconSwap, IconChart, IconSliders, IconEye, IconBook } from './icons'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: IconGrid, end: true },
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { to: '/transazioni', label: 'Transazioni', icon: IconSwap },
   { to: '/analisi', label: 'Analisi', icon: IconChart },
   { to: '/impostazioni', label: 'Impostazioni', icon: IconSliders },
+  { to: '/manuale', label: 'Manuale', icon: IconBook },
 ]
 
 function initialsFromEmail(email: string | undefined) {

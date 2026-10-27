@@ -9,6 +9,7 @@ import Posizioni from './pages/Posizioni'
 import Transazioni from './pages/Transazioni'
 import Analisi from './pages/Analisi'
 import Impostazioni from './pages/Impostazioni'
+import Manuale from './pages/Manuale'
 
 function AppGate() {
   const { session, loading } = useAuth()
@@ -26,6 +27,7 @@ function AppGate() {
             <Route path="transazioni" element={<Transazioni />} />
             <Route path="analisi" element={<Analisi />} />
             <Route path="impostazioni" element={<Impostazioni />} />
+            <Route path="manuale" element={<Manuale />} />
           </Route>
         </Routes>
       </BrowserRouter>

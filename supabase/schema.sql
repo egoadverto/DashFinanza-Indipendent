@@ -5,7 +5,7 @@
 -- dalle migrazioni applicate), più il trigger t_impedisci_ciclo aggiunto il
 -- 2026-10-27, che su un database già esistente va applicato a parte.
 -- Procedura completa di installazione (Edge Function, cron, utente):
--- installazione-indipendente.md.
+-- README.md del repository dashfinanza-indipendent.
 -- =====================================================================
 --
 -- PRINCIPI

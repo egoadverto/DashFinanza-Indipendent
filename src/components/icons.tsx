@@ -68,3 +68,12 @@ export function IconEye({ className }: IconProps) {
     </svg>
   )
 }
+
+export function IconBook({ className }: IconProps) {
+  return (
+    <svg className={className} width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path d="M3 3.5A1.5 1.5 0 014.5 2H15v12H4.5A1.5 1.5 0 003 15.5v-12z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M3 15.5A1.5 1.5 0 004.5 17H15v-3M6 6h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  )
+}
