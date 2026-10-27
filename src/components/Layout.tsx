@@ -11,8 +11,9 @@ const NAV_ITEMS = [
   { to: '/transazioni', label: 'Transazioni', icon: IconSwap },
   { to: '/analisi', label: 'Analisi', icon: IconChart },
   { to: '/impostazioni', label: 'Impostazioni', icon: IconSliders },
-  { to: '/manuale', label: 'Manuale', icon: IconBook },
 ]
+
+const MANUALE = { to: '/manuale', label: 'Manuale', icon: IconBook, end: false }
 
 function initialsFromEmail(email: string | undefined) {
   if (!email) return '?'
@@ -20,6 +21,12 @@ function initialsFromEmail(email: string | undefined) {
   const parts = local.split(/[._-]/).filter(Boolean)
   const chars = parts.length > 1 ? [parts[0][0], parts[1][0]] : [local[0], local[1] ?? '']
   return chars.join('').toUpperCase()
+}
+
+function classeVoceSidebar({ isActive }: { isActive: boolean }) {
+  return `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm ${
+    isActive ? 'bg-primary-active font-medium text-primary' : 'text-text-secondary hover:bg-background'
+  }`
 }
 
 export default function Layout() {
@@ -39,19 +46,19 @@ export default function Layout() {
               key={to}
               to={to}
               end={end}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm ${
-                  isActive
-                    ? 'bg-primary-active font-medium text-primary'
-                    : 'text-text-secondary hover:bg-background'
-                }`
-              }
+              className={classeVoceSidebar}
             >
               <Icon />
               {label}
             </NavLink>
           ))}
         </nav>
+        <div className="px-3 pb-2">
+          <NavLink to={MANUALE.to} className={classeVoceSidebar}>
+            <MANUALE.icon />
+            {MANUALE.label}
+          </NavLink>
+        </div>
         <button
           onClick={() => supabase.auth.signOut()}
           className="border-t border-border px-5 py-3 text-left text-xs text-text-secondary hover:text-text"
@@ -90,7 +97,7 @@ export default function Layout() {
         className="fixed inset-x-0 bottom-0 z-20 flex border-t border-border bg-surface md:hidden"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
-        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+        {[...NAV_ITEMS, MANUALE].map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}

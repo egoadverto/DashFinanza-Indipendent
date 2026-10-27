@@ -15,7 +15,7 @@ function Sezione({ id, children }: { id: string; children: ReactNode }) {
   return (
     <section id={id} className="scroll-mt-4 rounded-[12px] border border-border bg-surface px-[26px] py-6">
       <div className="mb-4 text-base font-semibold">{titolo}</div>
-      <div className="flex max-w-[75ch] flex-col gap-3 text-sm leading-relaxed text-text-secondary [&_b]:font-semibold [&_b]:text-text">
+      <div className="flex flex-col gap-3 text-sm leading-relaxed text-text-secondary [&_b]:font-semibold [&_b]:text-text">
         {children}
       </div>
     </section>
