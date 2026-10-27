@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import Modal from '../Modal'
 import ConfirmDialog from '../ConfirmDialog'
-import { useCreateProviderPrezzo } from '../../hooks/useCreateProviderPrezzo'
-import { useUpdateProviderPrezzo } from '../../hooks/useUpdateProviderPrezzo'
-import { useDeleteProviderPrezzo } from '../../hooks/useDeleteProviderPrezzo'
+import { useCreateProviderPrezzo } from '../../hooks/useCrud'
+import { useUpdateProviderPrezzo } from '../../hooks/useCrud'
+import { useDeleteProviderPrezzo } from '../../hooks/useCrud'
 import type { ProviderPrezzo } from '../../types/domain'
 
 export default function NuovoProvider({ providerEsistente, onClose }: { providerEsistente?: ProviderPrezzo; onClose: () => void }) {

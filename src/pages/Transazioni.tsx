@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTree } from '../hooks/useTree'
 import { useTransazioni } from '../hooks/useTransazioni'
-import { useDeleteTransazione } from '../hooks/useDeleteTransazione'
+import { useDeleteTransazione } from '../hooks/useCrud'
 import { usePosizioniChiuse } from '../hooks/usePosizioniChiuse'
 import { flattenContenitori, flattenTitoli } from '../lib/tree'
 import { fmtData, fmtEur, fmtQty } from '../lib/format'

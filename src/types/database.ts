@@ -79,12 +79,9 @@ export type Database = {
         Row: {
           aggiornato_il: string
           dashboard_allocazione_nodo_id: string | null
-          dinamizzazione_default: number
-          importo_minimo: number
           liquidita: number
           periodo_grafici: string
           privacy_all_apertura: boolean
-          ribilancio_solo_flussi: boolean
           soglia_revisione: number
           tolleranza_punti: number
           user_id: string
@@ -92,12 +89,9 @@ export type Database = {
         Insert: {
           aggiornato_il?: string
           dashboard_allocazione_nodo_id?: string | null
-          dinamizzazione_default?: number
-          importo_minimo?: number
           liquidita?: number
           periodo_grafici?: string
           privacy_all_apertura?: boolean
-          ribilancio_solo_flussi?: boolean
           soglia_revisione?: number
           tolleranza_punti?: number
           user_id: string
@@ -105,12 +99,9 @@ export type Database = {
         Update: {
           aggiornato_il?: string
           dashboard_allocazione_nodo_id?: string | null
-          dinamizzazione_default?: number
-          importo_minimo?: number
           liquidita?: number
           periodo_grafici?: string
           privacy_all_apertura?: boolean
-          ribilancio_solo_flussi?: boolean
           soglia_revisione?: number
           tolleranza_punti?: number
           user_id?: string
@@ -144,7 +135,6 @@ export type Database = {
           ordine: number
           pac_dinamizzazione: number | null
           pac_importo: number | null
-          pac_mesi: number[] | null
           parent_id: string | null
           riferimento_id: string | null
           stato: string | null
@@ -166,7 +156,6 @@ export type Database = {
           ordine?: number
           pac_dinamizzazione?: number | null
           pac_importo?: number | null
-          pac_mesi?: number[] | null
           parent_id?: string | null
           riferimento_id?: string | null
           stato?: string | null
@@ -188,7 +177,6 @@ export type Database = {
           ordine?: number
           pac_dinamizzazione?: number | null
           pac_importo?: number | null
-          pac_mesi?: number[] | null
           parent_id?: string | null
           riferimento_id?: string | null
           stato?: string | null

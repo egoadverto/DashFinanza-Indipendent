@@ -234,7 +234,7 @@ export default function Manuale() {
         </p>
         <p>
           <b>Allocazione</b> — tolleranza di scostamento (quanti punti di Scarto prima che una riga venga segnalata in
-          "Da controllare"), importo minimo, dinamizzazione di default, soglia di revisione del capitale totale.
+          "Da controllare") e soglia di revisione del capitale totale.
         </p>
         <p>
           <b>Dati e account</b> — una card per ogni provider di prezzi collegato (oggi justETF per ETF/ETC/fondi pensione,

@@ -3,7 +3,7 @@ import Modal from '../Modal'
 import ConfirmDialog from '../ConfirmDialog'
 import { useCreateBenchmark } from '../../hooks/useCreateBenchmark'
 import { useUpdateBenchmark } from '../../hooks/useUpdateBenchmark'
-import { useDeleteBenchmark } from '../../hooks/useDeleteBenchmark'
+import { useDeleteBenchmark } from '../../hooks/useCrud'
 import { COLORI_BENCHMARK } from '../../lib/coloriBenchmark'
 import type { Benchmark } from '../../types/domain'
 

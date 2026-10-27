@@ -153,7 +153,6 @@ create table nodi (
   -- tantum, esclusa da scarto, riferimento e ribilanciamento.
   fa_parte_pac       boolean not null default true,
   pac_importo        numeric(12,2),
-  pac_mesi           smallint[],           -- scritto a schema ma non ancora usato dall'app
   pac_dinamizzazione numeric(5,2),
 
   modo_target        text check (modo_target in ('stabilito','calcolato')),
@@ -256,12 +255,9 @@ create table impostazioni (
   user_id                       uuid primary key references auth.users(id) on delete cascade,
   liquidita                     numeric(14,2) not null default 0,
   tolleranza_punti              numeric(5,2)  not null default 5.0,
-  importo_minimo                numeric(12,2) not null default 10.00,
-  dinamizzazione_default        numeric(5,2)  not null default 5.0,
   soglia_revisione              numeric(14,2) not null default 10000.00,
   periodo_grafici                text    not null default 'dall_inizio',
   privacy_all_apertura          boolean not null default false,
-  ribilancio_solo_flussi        boolean not null default true,  -- scritto a schema, non più usato dall'app
   dashboard_allocazione_nodo_id uuid references nodi(id) on delete set null,
   aggiornato_il                 timestamptz not null default now()
 );

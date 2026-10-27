@@ -5,7 +5,7 @@ import { configurazioneAttiva, haOverride, impostaOverride, rimuoviOverride } fr
 import { useImpostazioni } from '../hooks/useImpostazioni'
 import { useUpdateImpostazioni } from '../hooks/useUpdateImpostazioni'
 import { useProviderPrezzi } from '../hooks/useProviderPrezzi'
-import { useUpdateProviderPrezzo } from '../hooks/useUpdateProviderPrezzo'
+import { useUpdateProviderPrezzo } from '../hooks/useCrud'
 import { useAggiornaPrezzi } from '../hooks/useAggiornaPrezzi'
 import { PERIODI, type Periodo } from '../lib/periodo'
 import { fmtData, parseNumeroIt } from '../lib/format'
@@ -27,7 +27,7 @@ const SI_NO: { value: 'si' | 'no'; label: string }[] = [
 
 type Draft = Pick<
   ImpostazioniRow,
-  'periodo_grafici' | 'privacy_all_apertura' | 'tolleranza_punti' | 'importo_minimo' | 'dinamizzazione_default' | 'soglia_revisione'
+  'periodo_grafici' | 'privacy_all_apertura' | 'tolleranza_punti' | 'soglia_revisione'
 >
 
 function draftDi(i: ImpostazioniRow): Draft {
@@ -35,8 +35,6 @@ function draftDi(i: ImpostazioniRow): Draft {
     periodo_grafici: i.periodo_grafici,
     privacy_all_apertura: i.privacy_all_apertura,
     tolleranza_punti: i.tolleranza_punti,
-    importo_minimo: i.importo_minimo,
-    dinamizzazione_default: i.dinamizzazione_default,
     soglia_revisione: i.soglia_revisione,
   }
 }
@@ -220,20 +218,6 @@ export default function Impostazioni() {
             </Campo>
 
             <div className="border-t border-border" />
-
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5">
-              <Campo etichetta="Importo minimo per versamento">
-                <CampoNumero valore={draft.importo_minimo} onChange={(v) => setDraft({ ...draft, importo_minimo: v })} suffisso="€" />
-              </Campo>
-
-              <Campo etichetta="Dinamizzazione annua predefinita">
-                <CampoNumero
-                  valore={draft.dinamizzazione_default}
-                  onChange={(v) => setDraft({ ...draft, dinamizzazione_default: v })}
-                  suffisso="%"
-                />
-              </Campo>
-            </div>
 
             <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5">
               <Campo etichetta="Soglia di revisione strutturale">
