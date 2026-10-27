@@ -1,17 +1,46 @@
-# DashFinanza
+<p align="center">
+  <img src="public/favicon.svg" width="72" alt="Logo di DashFinanza">
+</p>
 
-App di monitoraggio investimenti, pensata per un utente singolo.
-Traccia portafogli, TAG e titoli in un albero, confronta il peso reale
-di ciascuno con l'obiettivo che gli hai dato e dice quanto versare su
-cosa per avvicinarti — senza mai proporre vendite. Quantità, prezzo
-medio di carico, pesi e rendimenti non si inseriscono mai a mano: si
-ricalcolano sempre dalle transazioni e dai prezzi.
+<h1 align="center">DashFinanza</h1>
 
-Cinque schermate: **Dashboard**, **Posizioni**, **Transazioni**,
-**Analisi**, **Impostazioni**. Interamente in italiano.
+<p align="center">
+  <b>Il tuo portafoglio, i tuoi obiettivi, nessun foglio Excel.</b><br>
+  App personale per monitorare gli investimenti: sai sempre quanto versare su cosa per restare in linea con i tuoi target, senza mai dover vendere.
+</p>
 
-Stack: React 19, Vite, TypeScript, Tailwind CSS 4, Supabase (database e
-autenticazione), Netlify (pubblicazione).
+<p align="center">
+  <a href="https://github.com/egoadverto/dashfinanza-indipendent/releases"><img src="https://img.shields.io/github/v/release/egoadverto/dashfinanza-indipendent?label=versione" alt="Versione"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/licenza-AGPLv3-blue" alt="Licenza AGPLv3"></a>
+  <img src="https://img.shields.io/badge/lingua-italiano-green" alt="In italiano">
+</p>
+
+---
+
+## Perché DashFinanza
+
+Il broker ti dice quanto vale ogni titolo. Non ti dice se il tuo portafoglio sta andando dove volevi tu. DashFinanza parte dai tuoi obiettivi e ti mostra, riga per riga, quanto manca in punti e in euro per raggiungerli.
+
+- 🌳 **Organizzi il capitale come vuoi.** Portafogli annidati, TAG riutilizzabili (es. "Azionario USA" in più portafogli), titoli: nessuna struttura imposta.
+- 🎯 **Obiettivi e Scarto sempre visibili.** Ogni riga ti dice quanto sei sopra o sotto il target, e quanto versare per rientrare. Mai un invito a vendere.
+- 📈 **Rendimenti veri.** TWR e XIRR calcolati dalle tue transazioni, confronto con benchmark scelti per ISIN, andamento nel tempo.
+- 🔄 **Prezzi aggiornati da soli.** ETF ed ETC da justETF, cripto da CoinGecko, ogni mattina.
+- 📥 **Import dall'estratto del broker.** Carichi il CSV e le transazioni entrano da sole, senza duplicati anche se ricarichi lo stesso file.
+- 💸 **Costi sotto controllo.** TER medio ponderato e costo annuo in euro del tuo portafoglio.
+- 🔒 **Dati tuoi, solo tuoi.** Ogni installazione ha il proprio database Supabase, e un interruttore privacy nasconde gli importi quando qualcuno guarda lo schermo.
+- 📱 **Su computer e telefono**, interamente in italiano, con formato numerico italiano.
+
+Niente si inserisce a mano due volte: quantità, prezzo medio di carico, pesi e rendimenti si ricalcolano sempre dalle transazioni e dai prezzi.
+
+## Broker supportato per l'import
+
+L'import CSV oggi riconosce l'estratto **Scalable Capital** ("Broker Transactions"). Le transazioni di qualunque altro broker si possono comunque inserire a mano.
+
+Non hai ancora un conto Scalable Capital? Puoi aprirlo con il mio [link d'invito](https://it.scalable.capital/invito/bgxmz5). È un link referral: se lo usi, io posso ricevere un bonus.
+
+## Come è fatta
+
+React 19, Vite, TypeScript e Tailwind CSS 4 per l'interfaccia, Supabase per database e accesso, Netlify per la pubblicazione. Cinque schermate (Dashboard, Posizioni, Transazioni, Analisi, Impostazioni) più il Manuale dentro l'app.
 
 ## Installazione
 
